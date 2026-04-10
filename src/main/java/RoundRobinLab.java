@@ -44,27 +44,37 @@ public class RoundRobinLab {
      */
     public static void scheduleRoundRobin(List<Process> processes, int timeQuantum) {
         int currentTime = 0;
+        Queue<Process> readyQueue = new LinkedList<>();
 
-        // TODO 1: Create ready queue and add all processes
+        // Add all processes to the ready queue initially
+        for (Process p : processes) {
+            readyQueue.add(p);
+        }
 
+        while (!readyQueue.isEmpty()) {
+            Process currentProcess = readyQueue.poll();
 
-        // TODO 2: Scheduling loop
-        // while (queue is not empty) {
-        //     - Remove first process
-        //     - Calculate execution time (min of quantum and remaining time)
-        //     - Update current time
-        //     - Decrease remaining time
-        //     - If not done, add back to queue
-        //     - If done, set completion time
-        // }
+            // Calculate execution time (min of quantum and remaining time)
+            int executionTime = Math.min(timeQuantum, currentProcess.remainingTime);
+            currentTime += executionTime;
+            currentProcess.remainingTime -= executionTime;
 
+            // If process is not finished, add it back to the end of the queue
+            if (currentProcess.remainingTime > 0) {
+                readyQueue.add(currentProcess);
+            } else {
+                // If process is finished, set completion time
+                currentProcess.completionTime = currentTime;
+            }
+        }
 
-        // TODO 3: Calculate turnaround and waiting times
-        // for each process:
-        //     turnaroundTime = completionTime - arrivalTime
-        //     waitingTime = turnaroundTime - burstTime
-
+        // Calculate turnaround and waiting times
+        for (Process p : processes) {
+            p.turnaroundTime = p.completionTime - p.arrivalTime;
+            p.waitingTime = p.turnaroundTime - p.burstTime;
+        }
     }
+
 
     /**
      * Calculate and display metrics (FULLY PROVIDED)
